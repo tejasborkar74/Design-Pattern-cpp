@@ -22,6 +22,7 @@ class SingleLogger {
 	// we have to initialise it outside the class
 	static int count;
 	static SingleLogger* loggerObj;
+	static mutex mtx;
 	SingleLogger() {
 		count++;
 		cout << "> New Singlelogger instance created !! Total = " << count << endl;
@@ -30,7 +31,11 @@ class SingleLogger {
 public:
 	static SingleLogger* getLoggerInstance() {
 		if (loggerObj == nullptr) {
-			loggerObj = new SingleLogger();
+			mtx.lock();
+			if(loggerObj == nullptr) {
+				loggerObj = new SingleLogger();
+			}
+			mtx.unlock();
 		}
 		return loggerObj;
 	}
@@ -39,8 +44,10 @@ public:
 		cout << msg << endl;
 	}
 };
+// NOTE: Don't forget to define static variable outside the class
 int SingleLogger::count = 0;
 SingleLogger* SingleLogger::loggerObj = nullptr;
+mutex SingleLogger::mtx;
 
 
 
